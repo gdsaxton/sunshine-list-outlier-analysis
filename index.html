@@ -1,0 +1,565 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f6f3;--bg3:#eeedea;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#999894;
+  --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.18);
+  --radius:8px;--radius-lg:14px;
+  --blue:#2872C8;--blue-lt:#EBF3FC;
+  --amber:#9A6200;--amber-lt:#FEF3DC;
+  --coral:#C04C28;--coral-lt:#FDF0EB;--coral-text:#8B3219;
+  --shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.05);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --text:#edebe6;--text2:#a8a69f;--text3:#706e68;
+  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.16);
+  --blue:#6BAEE8;--blue-lt:#1a2d42;
+  --amber:#F0B93A;--amber-lt:#2d2210;
+  --coral:#E8876A;--coral-lt:#3a1a10;--coral-text:#E8876A;
+  --shadow:0 1px 3px rgba(0,0,0,0.3);
+}}
+body,#app{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:transparent;color:var(--text);font-size:14px;line-height:1.5}
+#app{padding:0.5rem 0 2rem}
+
+/* ── Loader card ── */
+#loader{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:2rem;max-width:520px;margin:2rem auto;box-shadow:var(--shadow)}
+#loader h2{font-size:17px;font-weight:500;margin-bottom:4px;color:var(--text)}
+#loader p.sub{font-size:13px;color:var(--text3);margin-bottom:1.5rem}
+.load-option{border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;background:var(--bg);transition:border-color 0.12s,background 0.12s}
+.load-option:last-child{margin-bottom:0}
+.load-option-head{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.load-option-head input[type=radio]{accent-color:var(--blue);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.load-option-label{font-size:13px;font-weight:500;color:var(--text)}
+.load-option-desc{font-size:12px;color:var(--text3);margin-top:2px;padding-left:25px}
+.load-option-body{padding-left:25px;margin-top:10px;display:none}
+.load-option.open .load-option-body{display:block}
+.load-option.open{border-color:var(--blue);background:var(--blue-lt)}
+.url-row{display:flex;gap:8px}
+.url-row input{flex:1;font-size:13px;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text)}
+.url-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-lt)}
+.upload-label{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:7px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);cursor:pointer;transition:background 0.1s}
+.upload-label:hover{background:var(--bg3)}
+.upload-label input{display:none}
+#selectedFile{font-size:12px;color:var(--text3);margin-top:6px}
+.load-btn{width:100%;margin-top:1.25rem;padding:9px;border-radius:var(--radius);background:var(--blue);color:#fff;border:none;font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.1s}
+.load-btn:hover{opacity:0.88}
+.load-btn:disabled{opacity:0.4;cursor:default}
+#loaderStatus{font-size:12px;color:var(--text3);margin-top:10px;text-align:center;min-height:18px}
+
+/* ── Dashboard ── */
+.page-title{font-size:22px;font-weight:500;color:var(--text);letter-spacing:-0.3px}
+.page-sub{font-size:13px;color:var(--text3);margin-top:2px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.75rem}
+.metric{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem 1.1rem;border:0.5px solid var(--border)}
+.metric-label{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
+.metric-value{font-size:22px;font-weight:500;color:var(--text);letter-spacing:-0.5px}
+.tab-bar{display:flex;gap:2px;margin-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.tab{padding:9px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);transition:color 0.12s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);border-bottom-color:var(--blue);font-weight:500}
+.filters-wrap{display:flex;gap:10px;margin-bottom:1.5rem;align-items:flex-start;flex-wrap:wrap}
+.filter-left{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.filter-left select,.filter-left input[type=text]{font-size:13px;padding:7px 11px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:210px;box-shadow:var(--shadow)}
+.filter-left select:focus,.filter-left input[type=text]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-lt)}
+.cb-panel{flex:1;min-width:220px;border:0.5px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.cb-panel-head{padding:8px 12px;border-bottom:0.5px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center}
+.cb-panel-head span{font-size:12px;color:var(--text2)}
+.cb-action{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 7px;border-radius:20px;background:none;border:0.5px solid var(--border);transition:all 0.1s}
+.cb-action:hover{color:var(--text);background:var(--bg3);border-color:var(--border2)}
+.cb-search{padding:7px 10px;border-bottom:0.5px solid var(--border)}
+.cb-search input{width:100%;font-size:12px;padding:5px 9px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text)}
+.cb-search input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-lt)}
+.cb-list{max-height:152px;overflow-y:auto;padding:3px 0}
+.cb-item{display:flex;align-items:center;gap:8px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--text);user-select:none;transition:background 0.08s}
+.cb-item:hover{background:var(--bg2)}
+.cb-item input[type=checkbox]{width:13px;height:13px;cursor:pointer;flex-shrink:0;accent-color:var(--blue)}
+.cb-item label{cursor:pointer;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-empty{font-size:12px;color:var(--text3);padding:10px 12px}
+.cb-footer{padding:8px 12px;border-top:0.5px solid var(--border);background:var(--bg2);display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.apply-btn{font-size:12px;font-weight:500;padding:6px 16px;border-radius:var(--radius);background:var(--blue);color:#fff;border:none;cursor:pointer;transition:opacity 0.1s}
+.apply-btn:hover{opacity:0.88}
+.pending-note{font-size:11px;color:var(--text3)}
+.clear-btn{font-size:12px;color:var(--text2);cursor:pointer;padding:6px 11px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);white-space:nowrap;box-shadow:var(--shadow);transition:background 0.1s;display:inline-flex;align-items:center;gap:5px}
+.clear-btn:hover{background:var(--bg2)}
+table{width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed}
+th{text-align:left;padding:8px 10px;font-size:11px;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--bg2);text-transform:uppercase;letter-spacing:0.04em}
+th:hover{color:var(--text)}
+td{padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:hover td{background:var(--bg2)}
+tr:last-child td{border-bottom:none}
+.badge-outlier{display:inline-block;background:var(--coral-lt);color:var(--coral-text);font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.badge-mild{display:inline-block;background:var(--amber-lt);color:var(--amber);font-size:10px;padding:2px 7px;border-radius:20px}
+.badge-sm{display:inline-block;background:var(--bg3);color:var(--text3);font-size:10px;padding:2px 7px;border-radius:20px}
+.pagination{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:12px;color:var(--text2)}
+.page-btn{padding:4px 11px;border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;background:var(--bg);color:var(--text);font-size:13px;transition:background 0.1s}
+.page-btn:hover:not(:disabled){background:var(--bg2)}
+.page-btn:disabled{opacity:0.35;cursor:default}
+.result-count{font-size:12px;color:var(--text3);margin-bottom:10px}
+.note{font-size:12px;color:var(--text2);margin-bottom:1.1rem;padding:10px 14px;background:var(--bg2);border-radius:var(--radius);border-left:3px solid var(--border2)}
+.stat-card{padding:10px 14px;background:var(--bg2);border-radius:var(--radius-lg);border:0.5px solid var(--border);font-size:12px;color:var(--text2)}
+.stat-card strong{color:var(--text);font-weight:500}
+.tbl-wrap{overflow-x:auto;border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+</style>
+
+<div id="app">
+
+  <!-- ── Loader ── -->
+  <div id="loader">
+    <h2>Ontario Sunshine List 2025</h2>
+    <p class="sub">Choose how to load the data</p>
+
+    <div class="load-option open" id="opt-repo">
+      <div class="load-option-head" onclick="selectOption('repo')">
+        <input type="radio" name="loadMode" value="repo" checked>
+        <div>
+          <div class="load-option-label">Load from repository</div>
+          <div class="load-option-desc">Automatically loads <code style="font-size:11px">data/sunshine2025.csv</code> from the same folder as this file</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="load-option" id="opt-url">
+      <div class="load-option-head" onclick="selectOption('url')">
+        <input type="radio" name="loadMode" value="url">
+        <div>
+          <div class="load-option-label">Paste a CSV URL</div>
+          <div class="load-option-desc">Load any publicly accessible CSV from the web</div>
+        </div>
+      </div>
+      <div class="load-option-body">
+        <div class="url-row">
+          <input type="text" id="csvUrl" placeholder="https://example.com/data.csv" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <div class="load-option" id="opt-upload">
+      <div class="load-option-head" onclick="selectOption('upload')">
+        <input type="radio" name="loadMode" value="upload">
+        <div>
+          <div class="load-option-label">Upload a file</div>
+          <div class="load-option-desc">Choose a CSV file from your computer</div>
+        </div>
+      </div>
+      <div class="load-option-body">
+        <label class="upload-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 9l5-5 5 5M12 4v12"/></svg>
+          Choose file
+          <input type="file" id="csvInput" accept=".csv">
+        </label>
+        <div id="selectedFile">No file chosen</div>
+      </div>
+    </div>
+
+    <button class="load-btn" id="loadBtn" onclick="handleLoad()">Load data</button>
+    <div id="loaderStatus"></div>
+  </div>
+
+  <!-- ── Dashboard ── -->
+  <div id="dashboard" style="display:none">
+    <div id="dash-header"></div>
+    <div class="filters-wrap" id="filters-wrap"></div>
+    <div class="metric-grid" id="metrics"></div>
+    <div class="tab-bar" id="tab-bar"></div>
+    <div id="tab-content"></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const GITHUB_CSV='data/sunshine2025.csv';
+const NP_TERMS=['nurse practitioner','advanced practice nurse'];
+function isNP(t){const tl=(t||'').toLowerCase();return NP_TERMS.some(x=>tl.includes(x));}
+
+let allData=[],groupStats={},sectorStats={};
+let activeTab='table',tableSort={col:'salary',dir:'desc'},page=1;
+const PS=50;
+let filters={sector:'',titles:new Set(),search:''};
+let pendingTitles=null,histChartInst=null,cbSearch='';
+let currentMode='repo';
+let pendingFile=null;
+
+// ── Loader UI ─────────────────────────────────────────────────────────────────
+function selectOption(mode){
+  currentMode=mode;
+  ['repo','url','upload'].forEach(m=>{
+    const el=document.getElementById('opt-'+m);
+    const radio=el.querySelector('input[type=radio]');
+    el.classList.toggle('open',m===mode);
+    radio.checked=(m===mode);
+  });
+}
+
+document.getElementById('csvInput').addEventListener('change',function(){
+  pendingFile=this.files[0]||null;
+  document.getElementById('selectedFile').textContent=pendingFile?pendingFile.name:'No file chosen';
+});
+
+function setLoaderStatus(msg,isErr){
+  const el=document.getElementById('loaderStatus');
+  el.textContent=msg;
+  el.style.color=isErr?'var(--coral)':'var(--text3)';
+}
+
+async function handleLoad(){
+  const btn=document.getElementById('loadBtn');
+  btn.disabled=true;
+  setLoaderStatus('Loading...');
+  try{
+    if(currentMode==='repo'){
+      await loadFromUrl(GITHUB_CSV);
+    } else if(currentMode==='url'){
+      const url=(document.getElementById('csvUrl').value||'').trim();
+      if(!url){setLoaderStatus('Please enter a URL.',true);btn.disabled=false;return;}
+      await loadFromUrl(url);
+    } else {
+      if(!pendingFile){setLoaderStatus('Please choose a file.',true);btn.disabled=false;return;}
+      loadFromFile(pendingFile);
+    }
+  }catch(e){
+    setLoaderStatus('Error: '+e.message,true);
+    btn.disabled=false;
+  }
+}
+
+async function loadFromUrl(url){
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('Could not fetch file (HTTP '+res.status+'). Check the URL or try uploading manually.');
+  const text=await res.text();
+  setLoaderStatus('Parsing...');
+  Papa.parse(text,{header:true,skipEmptyLines:true,
+    complete:r=>{
+      if(r.data&&r.data.length>10) processData(r.data);
+      else{setLoaderStatus('File appears empty or unreadable.',true);document.getElementById('loadBtn').disabled=false;}
+    },
+    error:e=>{setLoaderStatus('Parse error: '+e.message,true);document.getElementById('loadBtn').disabled=false;}
+  });
+}
+
+function loadFromFile(file){
+  setLoaderStatus('Parsing '+file.name+'...');
+  Papa.parse(file,{header:true,skipEmptyLines:true,
+    complete:r=>{
+      if(r.data&&r.data.length>10) processData(r.data);
+      else{setLoaderStatus('File appears empty or unreadable.',true);document.getElementById('loadBtn').disabled=false;}
+    },
+    error:e=>{setLoaderStatus('Parse error: '+e.message,true);document.getElementById('loadBtn').disabled=false;}
+  });
+}
+
+// ── Data processing ───────────────────────────────────────────────────────────
+const fmt=n=>n==null?'—':'$'+Math.round(n).toLocaleString();
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function computeIQR(vals){
+  const s=[...vals].sort((a,b)=>a-b);
+  const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)],iqr=q3-q1;
+  return{q1,q3,iqr,fence15:q3+1.5*iqr,fence30:q3+3.0*iqr};
+}
+function parseSalary(v){const n=parseFloat(String(v||'').replace(/[$, ]/g,''));return isNaN(n)?null:n;}
+
+function processData(rows){
+  const k=pat=>Object.keys(rows[0]).find(k=>pat.test(k));
+  const SK=k(/sector/i),SAL=k(/salary paid/i)||k(/^salary/i),EK=k(/employer/i),
+        TK=k(/job title|position/i),FK=k(/first.?name/i),LK=k(/surname|last.?name/i);
+  allData=rows.map(r=>({
+    sector:r[SK]||'Unknown',salary:parseSalary(r[SAL]),employer:r[EK]||'',
+    title:r[TK]||'',name:[r[FK]||'',r[LK]||''].filter(Boolean).join(' ')
+  })).filter(r=>r.salary&&r.salary>100000);
+  const groups={};
+  allData.forEach(r=>{const k=r.sector+'|||'+r.title;if(!groups[k])groups[k]=[];groups[k].push(r.salary);});
+  groupStats={};
+  Object.entries(groups).forEach(([k,vals])=>{
+    if(vals.length>=4){
+      const iq=computeIQR(vals);const s=[...vals].sort((a,b)=>a-b);
+      groupStats[k]={count:vals.length,mean:vals.reduce((a,b)=>a+b,0)/vals.length,
+        median:s[Math.floor(s.length/2)],min:s[0],max:s[s.length-1],
+        q1:iq.q1,q3:iq.q3,iqr:iq.iqr,fence15:iq.fence15,fence30:iq.fence30};
+    }
+  });
+  sectorStats={};
+  [...new Set(allData.map(r=>r.sector))].forEach(sec=>{
+    const vals=allData.filter(r=>r.sector===sec).map(r=>r.salary);
+    const s=[...vals].sort((a,b)=>a-b);
+    sectorStats[sec]={count:vals.length,mean:vals.reduce((a,b)=>a+b,0)/vals.length,
+      median:s[Math.floor(s.length/2)],min:s[0],max:s[s.length-1]};
+  });
+  allData.forEach(r=>{
+    const k=r.sector+'|||'+r.title,gs=groupStats[k];
+    r.outlier=gs?r.salary>gs.fence30:false;
+    r.mildOutlier=gs?(r.salary>gs.fence15&&r.salary<=gs.fence30):false;
+    r.peers=groups[k]?groups[k].length:1;
+    r.threshold=gs?gs.fence30:null;
+    r.mildThreshold=gs?gs.fence15:null;
+  });
+  const hospitalSector=[...new Set(allData.map(r=>r.sector))].find(s=>/hospital/i.test(s));
+  if(hospitalSector) filters.sector=hospitalSector;
+  getAvailableTitles().filter(t=>isNP(t)).forEach(t=>filters.titles.add(t));
+  pendingTitles=null;
+  document.getElementById('loader').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  initDashboard();
+}
+
+function getFiltered(){
+  let d=[...allData];
+  if(filters.sector) d=d.filter(r=>r.sector===filters.sector);
+  if(filters.titles.size) d=d.filter(r=>filters.titles.has(r.title));
+  if(filters.search){const q=filters.search.toLowerCase();d=d.filter(r=>r.name.toLowerCase().includes(q)||r.employer.toLowerCase().includes(q));}
+  return d;
+}
+function getAvailableTitles(){
+  let d=[...allData];
+  if(filters.sector) d=d.filter(r=>r.sector===filters.sector);
+  return [...new Set(d.map(r=>r.title))].filter(Boolean).sort();
+}
+function getSectors(){return [...new Set(allData.map(r=>r.sector))].filter(Boolean).sort();}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function initDashboard(){renderHeader();renderFilters();renderMetrics();renderTabBar();renderTabContent();}
+
+function renderHeader(){
+  document.getElementById('dash-header').innerHTML=`
+  <div style="margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+    <div><p class="page-title">Ontario Sunshine List 2025</p><p class="page-sub">Public sector salaries &gt; $100,000</p></div>
+    <button class="clear-btn" onclick="showLoader()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 9l5-5 5 5M12 4v12"/></svg>Change data source</button>
+  </div>`;
+}
+
+function showLoader(){
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('loader').style.display='block';
+  document.getElementById('loadBtn').disabled=false;
+  setLoaderStatus('');
+}
+
+function renderFilters(){
+  const sectors=getSectors();
+  const sOpts=['<option value="">All sectors</option>',...sectors.map(s=>`<option value="${esc(s)}"${s===filters.sector?' selected':''}>${s}</option>`)].join('');
+  const hasFilter=filters.sector||filters.titles.size||filters.search;
+  document.getElementById('filters-wrap').innerHTML=`
+    <div class="filter-left">
+      <select id="fSector" onchange="setSector(this.value)">${sOpts}</select>
+      <input type="text" id="searchInput" placeholder="Search name or employer..." value="${esc(filters.search)}">
+      ${hasFilter?`<button class="clear-btn" onclick="clearFilters()">&#x2715;&nbsp;Clear all</button>`:''}
+    </div>
+    <div class="cb-panel" id="cb-panel"></div>`;
+  document.getElementById('searchInput').addEventListener('input',function(){
+    filters.search=this.value;page=1;renderMetrics();renderTabContent();
+  });
+  renderCbPanel();
+}
+
+function renderCbPanel(){
+  const availTitles=getAvailableTitles();
+  const visTitles=cbSearch?availTitles.filter(t=>t.toLowerCase().includes(cbSearch.toLowerCase())):availTitles;
+  const activePending=pendingTitles!==null?pendingTitles:new Set(filters.titles);
+  const selCount=filters.titles.size;
+  const pendCount=pendingTitles!==null?pendingTitles.size:selCount;
+  const isDirty=pendingTitles!==null&&(()=>{
+    if(pendingTitles.size!==filters.titles.size)return true;
+    for(const t of pendingTitles)if(!filters.titles.has(t))return true;
+    return false;
+  })();
+  const cbItems=visTitles.length
+    ? visTitles.map(t=>{
+        const id='cb_'+Math.abs([...t].reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0));
+        return`<div class="cb-item" onclick="togglePending('${esc(t).replace(/'/g,"\\'")}')">
+          <input type="checkbox" id="${id}" ${activePending.has(t)?'checked':''} onclick="event.stopPropagation();togglePending('${esc(t).replace(/'/g,"\\'")}')">
+          <label for="${id}" onclick="event.preventDefault()">${esc(t)}</label>
+        </div>`;
+      }).join('')
+    : `<div class="cb-empty">No titles match</div>`;
+  const panel=document.getElementById('cb-panel');
+  if(!panel) return;
+  panel.innerHTML=`
+    <div class="cb-panel-head">
+      <span>Job titles${selCount?` &mdash; <strong style="color:var(--text)">${selCount} applied</strong>`:''}</span>
+      <div style="display:flex;gap:5px">
+        <button class="cb-action" onclick="clearPending()">Clear</button>
+        <button class="cb-action" onclick="selectAllVisible()">All</button>
+      </div>
+    </div>
+    <div class="cb-search"><input type="text" id="cbSearchInput" placeholder="Search titles..." value="${esc(cbSearch)}"></div>
+    <div class="cb-list">${cbItems}</div>
+    <div class="cb-footer">
+      <span class="pending-note">${isDirty?`${pendCount} selected &mdash; not yet applied`:`${selCount} applied`}</span>
+      <button class="apply-btn" onclick="applyTitles()">Apply</button>
+    </div>`;
+  document.getElementById('cbSearchInput').addEventListener('input',function(){
+    cbSearch=this.value;renderCbPanel();
+    const el=document.getElementById('cbSearchInput');
+    if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}
+  });
+}
+
+function renderMetrics(){
+  const fd=getFiltered();
+  const sals=fd.map(r=>r.salary);
+  const mean=sals.length?sals.reduce((a,b)=>a+b,0)/sals.length:0;
+  const sorted=[...sals].sort((a,b)=>a-b);
+  const median=sorted.length?sorted[Math.floor(sorted.length/2)]:0;
+  const outlierCount=fd.filter(r=>r.outlier).length;
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Showing</div><div class="metric-value">${fd.length.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Mean salary</div><div class="metric-value">${fmt(mean)}</div></div>
+    <div class="metric"><div class="metric-label">Median salary</div><div class="metric-value">${fmt(median)}</div></div>
+    <div class="metric"><div class="metric-label">Outliers</div><div class="metric-value">${outlierCount.toLocaleString()}</div></div>`;
+}
+
+function renderTabBar(){
+  const tabs=[['table','Table'],['histogram','Histogram'],['outliers','Outliers'],['overview','Sector overview']];
+  document.getElementById('tab-bar').innerHTML=tabs.map(([t,l])=>
+    `<div class="tab${activeTab===t?' active':''}" onclick="switchTab('${t}')">${l}</div>`).join('');
+}
+
+function renderTabContent(){
+  const el=document.getElementById('tab-content');
+  if(activeTab==='table') el.innerHTML=renderTable();
+  else if(activeTab==='histogram'){el.innerHTML=renderHistogramHTML();setTimeout(drawHistogram,50);}
+  else if(activeTab==='outliers') el.innerHTML=renderOutliers();
+  else if(activeTab==='overview') el.innerHTML=renderOverview();
+}
+
+function fullRefresh(){renderFilters();renderMetrics();renderTabBar();renderTabContent();}
+
+function togglePending(t){
+  if(pendingTitles===null)pendingTitles=new Set(filters.titles);
+  if(pendingTitles.has(t))pendingTitles.delete(t);else pendingTitles.add(t);
+  renderCbPanel();
+}
+function clearPending(){if(pendingTitles===null)pendingTitles=new Set(filters.titles);pendingTitles.clear();renderCbPanel();}
+function selectAllVisible(){
+  if(pendingTitles===null)pendingTitles=new Set(filters.titles);
+  const avail=getAvailableTitles();
+  (cbSearch?avail.filter(t=>t.toLowerCase().includes(cbSearch.toLowerCase())):avail).forEach(t=>pendingTitles.add(t));
+  renderCbPanel();
+}
+function applyTitles(){if(pendingTitles!==null){filters.titles=new Set(pendingTitles);pendingTitles=null;}page=1;fullRefresh();}
+function setSector(v){filters.sector=v;filters.titles.clear();pendingTitles=null;cbSearch='';page=1;fullRefresh();}
+function clearFilters(){filters={sector:'',titles:new Set(),search:''};pendingTitles=null;cbSearch='';page=1;initDashboard();}
+function switchTab(t){activeTab=t;page=1;renderTabBar();renderTabContent();}
+
+function renderTable(){
+  const fd=getFiltered();
+  fd.sort((a,b)=>{let v=tableSort.col==='salary'?b.salary-a.salary:(a[tableSort.col]||'').localeCompare(b[tableSort.col]||'');return tableSort.dir==='asc'?-v:v;});
+  const total=fd.length,start=(page-1)*PS,slice=fd.slice(start,start+PS),pages=Math.ceil(total/PS);
+  const arr=col=>`<span style="opacity:0.4;margin-left:3px">${tableSort.col===col?(tableSort.dir==='asc'?'↑':'↓'):'↕'}</span>`;
+  const rows=slice.map(r=>{
+    let flag='';
+    if(r.outlier) flag='<span class="badge-outlier">Outlier</span>';
+    else if(r.mildOutlier) flag='<span class="badge-mild">Mild</span>';
+    else if(r.threshold===null) flag='<span class="badge-sm">n&lt;4</span>';
+    return`<tr><td title="${esc(r.sector)}">${esc(r.sector)}</td><td title="${esc(r.employer)}">${esc(r.employer)}</td><td title="${esc(r.name)}">${esc(r.name)}</td><td title="${esc(r.title)}">${esc(r.title)}</td><td style="font-weight:500">${fmt(r.salary)}</td><td>${flag}</td></tr>`;
+  }).join('');
+  return`<p class="result-count">${total.toLocaleString()} results</p>
+  <div class="tbl-wrap"><table><thead><tr>
+    <th style="width:17%" onclick="sortTable('sector')">Sector${arr('sector')}</th>
+    <th style="width:22%" onclick="sortTable('employer')">Employer${arr('employer')}</th>
+    <th style="width:16%" onclick="sortTable('name')">Name${arr('name')}</th>
+    <th style="width:23%" onclick="sortTable('title')">Title${arr('title')}</th>
+    <th style="width:12%" onclick="sortTable('salary')">Salary${arr('salary')}</th>
+    <th style="width:10%">Flag</th>
+  </tr></thead><tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2.5rem">No results</td></tr>'}</tbody></table></div>
+  <div class="pagination"><span>${total?start+1:0}–${Math.min(start+PS,total)} of ${total.toLocaleString()}</span>
+    <button class="page-btn" ${page<=1?'disabled':''} onclick="changePage(-1)">&#8249;</button>
+    <button class="page-btn" ${page>=pages?'disabled':''} onclick="changePage(1)">&#8250;</button></div>`;
+}
+
+function renderOutliers(){
+  const fd=getFiltered().filter(r=>r.outlier).sort((a,b)=>b.salary-a.salary);
+  const total=fd.length,start=(page-1)*PS,slice=fd.slice(start,start+PS),pages=Math.ceil(total/PS);
+  const rows=slice.map(r=>{
+    const pct=r.threshold?((r.salary-r.threshold)/r.threshold*100).toFixed(1):'?';
+    return`<tr><td title="${esc(r.name)}">${esc(r.name)}</td><td title="${esc(r.title)}">${esc(r.title)}</td><td title="${esc(r.sector)}">${esc(r.sector)}</td><td style="font-weight:500">${fmt(r.salary)}</td><td>${fmt(r.threshold)}</td><td><span class="badge-outlier">+${pct}%</span></td><td style="color:var(--text3)">${r.peers}</td></tr>`;
+  }).join('');
+  return`<div class="note">Outlier = salary exceeds Q3 + 3×IQR for that peer group (same job title, same sector). Peers = number of people in the comparison group. Groups with fewer than 4 peers are excluded.</div>
+  <p class="result-count">${total.toLocaleString()} outliers</p>
+  <div class="tbl-wrap"><table><thead><tr>
+    <th style="width:16%">Name</th><th style="width:22%">Title</th><th style="width:18%">Sector</th>
+    <th style="width:12%">Salary</th><th style="width:16%">Threshold</th><th style="width:10%">Above</th><th style="width:8%">Peers</th>
+  </tr></thead><tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:2.5rem">No outliers in current selection</td></tr>'}</tbody></table></div>
+  <div class="pagination"><span>${total?start+1:0}–${Math.min(start+PS,total)} of ${total.toLocaleString()}</span>
+    <button class="page-btn" ${page<=1?'disabled':''} onclick="changePage(-1)">&#8249;</button>
+    <button class="page-btn" ${page>=pages?'disabled':''} onclick="changePage(1)">&#8250;</button></div>`;
+}
+
+function renderHistogramHTML(){
+  return`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+    <label style="font-size:12px;color:var(--text3)">Bins:</label>
+    <select id="histBins" onchange="redrawHistogram()" style="font-size:12px;padding:5px 9px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text)">
+      <option value="10">10</option><option value="20" selected>20</option><option value="30">30</option><option value="40">40</option>
+    </select>
+  </div>
+  <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1rem 0.75rem">
+    <div style="position:relative;width:100%;height:250px"><canvas id="histChart" role="img" aria-label="Combined salary histogram">Histogram.</canvas></div>
+    <div id="histAnnotation" style="margin-top:8px;font-size:11px;color:var(--text3);text-align:right"></div>
+  </div>
+  <div id="histStats" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"></div>`;
+}
+function drawHistogram(){redrawHistogram();}
+function redrawHistogram(){
+  const nBins=parseInt((document.getElementById('histBins')||{}).value||20);
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const nc=isDark?'#6BAEE8':'#2872C8',mc=isDark?'#F0B93A':'#9A6200',ec=isDark?'#E8876A':'#C04C28';
+  const ctx=document.getElementById('histChart');
+  if(!ctx)return;
+  if(histChartInst){histChartInst.destroy();histChartInst=null;}
+  const fd=getFiltered();if(!fd.length)return;
+  const sals=fd.map(r=>r.salary).sort((a,b)=>a-b);
+  const minS=sals[0],maxS=sals[sals.length-1],binW=(maxS-minS)/nBins||1;
+  const edges=Array.from({length:nBins+1},(_,i)=>minS+i*binW);
+  const iq=computeIQR(sals);
+  const bins=Array(nBins).fill(0);
+  fd.forEach(r=>{let i=Math.floor((r.salary-minS)/binW);if(i>=nBins)i=nBins-1;bins[i]++;});
+  const bgC=bins.map((_,i)=>{const m=(edges[i]+edges[i+1])/2;return(m>iq.fence30?ec:m>iq.fence15?mc:nc)+'BB';});
+  const bdC=bins.map((_,i)=>{const m=(edges[i]+edges[i+1])/2;return m>iq.fence30?ec:m>iq.fence15?mc:nc;});
+  histChartInst=new Chart(ctx,{type:'bar',
+    data:{labels:bins.map((_,i)=>(edges[i]+edges[i+1])/2),
+      datasets:[{data:bins,backgroundColor:bgC,borderColor:bdC,borderWidth:1,barPercentage:1,categoryPercentage:1}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:items=>{const i=items[0].dataIndex;return`${fmt(edges[i])} – ${fmt(edges[i+1])}`;},
+        label:item=>`Count: ${item.raw}`}}},
+      scales:{
+        x:{type:'linear',offset:false,grid:{offset:false},min:minS-binW*0.5,max:maxS+binW*0.5,
+          ticks:{callback:v=>'$'+(v>=1000?Math.round(v/1000)+'k':v),color:isDark?'#706e68':'#999894',maxTicksLimit:8},
+          grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}},
+        y:{ticks:{color:isDark?'#706e68':'#999894',precision:0},
+          title:{display:true,text:'Count',color:isDark?'#706e68':'#999894',font:{size:11}},
+          grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}}}}});
+  const ann=document.getElementById('histAnnotation');
+  if(ann) ann.innerHTML=`<span style="color:${mc}">&#9632; Mild: ${fmt(iq.fence15)}</span>&emsp;<span style="color:${ec}">&#9632; Outlier: ${fmt(iq.fence30)}</span>`;
+  const statsEl=document.getElementById('histStats');
+  const titlesInSel=[...new Set(fd.map(r=>r.title))].sort();
+  if(statsEl) statsEl.innerHTML=`<div class="stat-card" style="flex:1;min-width:200px">
+    <p style="margin-bottom:6px"><strong>All selected &mdash; n = ${sals.length}</strong></p>
+    <p>Mean: ${fmt(sals.reduce((a,b)=>a+b,0)/sals.length)} &nbsp;&nbsp; Median: ${fmt(sals[Math.floor(sals.length/2)])}</p>
+    <p style="margin-top:3px">Q1: ${fmt(iq.q1)} &nbsp;&nbsp; Q3: ${fmt(iq.q3)} &nbsp;&nbsp; IQR: ${fmt(iq.iqr)}</p>
+    <p style="margin-top:3px">Mild threshold: ${fmt(iq.fence15)} &nbsp;&nbsp; Outlier threshold: ${fmt(iq.fence30)}</p>
+    <p style="margin-top:5px;color:var(--text3);font-size:11px">${titlesInSel.map(esc).join(' &nbsp;·&nbsp; ')}</p>
+  </div>`;
+}
+
+function renderOverview(){
+  const fd=getFiltered();
+  const activeSectors=filters.sector?[filters.sector]:Object.keys(sectorStats).sort();
+  const rows=activeSectors.map(s=>{
+    const sub=fd.filter(r=>r.sector===s);if(!sub.length)return'';
+    const sals=sub.map(r=>r.salary).sort((a,b)=>a-b);
+    const mean=sals.reduce((a,b)=>a+b,0)/sals.length;
+    return`<tr><td title="${esc(s)}">${esc(s)}</td><td>${sub.length.toLocaleString()}</td><td>${fmt(mean)}</td><td>${fmt(sals[Math.floor(sals.length/2)])}</td><td>${fmt(sals[0])}</td><td>${fmt(sals[sals.length-1])}</td><td>${sub.filter(r=>r.mildOutlier).length||'—'}</td><td>${sub.filter(r=>r.outlier).length?`<span class="badge-outlier">${sub.filter(r=>r.outlier).length}</span>`:'—'}</td></tr>`;
+  }).join('');
+  return`<div class="tbl-wrap"><table><thead><tr>
+    <th style="width:26%">Sector</th><th style="width:8%">Count</th><th style="width:13%">Mean</th><th style="width:13%">Median</th><th style="width:11%">Min</th><th style="width:11%">Max</th><th style="width:9%">Mild</th><th style="width:9%">Outliers</th>
+  </tr></thead><tbody>${rows||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2.5rem">No data</td></tr>'}</tbody></table></div>`;
+}
+
+function sortTable(col){tableSort={col,dir:(tableSort.col===col&&tableSort.dir==='asc')?'desc':'asc'};renderTabContent();}
+function changePage(d){page+=d;renderTabContent();}
+</script>
